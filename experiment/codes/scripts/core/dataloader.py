@@ -32,7 +32,7 @@ class DataSet5(torch.utils.data.Dataset):
     
     the original pixel diffraction pattern is returned in item_output
     '''
-    def __init__(self, file_path):
+    def __init__(self, file_path, samplershape="5l"):
         '''
         A deliberate choice is made to just select one file to map from, so self.imgs only has one item. 
         I would recommend upgrading this software so it can handle multiple "images" (actually 4D datasets)
@@ -44,11 +44,30 @@ class DataSet5(torch.utils.data.Dataset):
 
         samplershape: string
             See self.selector().
+            DO NOT MOVE THIS TO getitem OR THIS WILL BREAK
         '''
         self.imgs=[]
         f = h5py.File(file_path, 'r')
-        #Dividing by 300 (to get values between 0 and 1) and converting to float16
         self.imgs.append(np.array(f['Experiments/__unnamed__/data/']))
+
+        self.samplershape=samplershape
+
+        if self.samplershape == '5l':
+            self.top_exclude=0
+            self.bottom_exclude=0
+            self.left_exclude=2
+            self.right_exclude=2
+            self.Rx=self.imgs[0].shape[0]
+            self.Ry=self.imgs[0].shape[1]            
+        elif self.samplershape == '3d' or '3s':
+            self.top_exclude=1
+            self.bottom_exclude=1
+            self.left_exclude=1
+            self.right_exclude=1
+        self.Rx=self.imgs[0].shape[0]
+        self.Ry=self.imgs[0].shape[1]
+        self.Rx_cut=self.imgs[0].shape[0]-self.top_exclude-self.bottom_exclude
+        self.Ry_cut=self.imgs[0].shape[1]-self.left_exclude-self.right_exclude 
     
     def __len__(self):
         """
@@ -58,7 +77,7 @@ class DataSet5(torch.utils.data.Dataset):
         return (self.imgs[0].shape[0]-self.top_exclude-self.bottom_exclude)*(self.imgs[0].shape[1]-self.left_exclude-self.right_exclude)
 
     #Note that this uses the sane person co-ordinate convention (x,y), while the rest of the program uses numpy convention (y,x), with weird results (e.g. the line for 5l is actually in the y-direction. We should probably fix this.)
-    def selector(self, Rx_pos, Ry_pos, samplershape='5l'):
+    def selector(self, Rx_pos, Ry_pos):
         '''
         Makes a selection of suitable points for video averaging from a dataset being recorded, 
         and works with a few different shapes
@@ -88,6 +107,7 @@ class DataSet5(torch.utils.data.Dataset):
             A 3D array of dimensions (n,Qx,Qy), n is the number of diffraction patterns returned for video denoising
         
         '''
+        samplershape=self.samplershape
         assert samplershape in ['5l','3d','3s',], 'Undefined Shape Code, please choose 5l, 3d, 3s'
                 #Because of the sampler, we have to downsample, cannot train with all pixels of the image, we have to exclude some at the edges
 
@@ -128,7 +148,7 @@ class DataSet5(torch.utils.data.Dataset):
         
         return coord_list
 
-    def getitem(self, index, samplershape='5l'):
+    def getitem(self, index):
         '''
         gets the real space positions to select from the input of index
 
@@ -150,23 +170,7 @@ class DataSet5(torch.utils.data.Dataset):
             currently just returns the diffraction pattern at the pixel at the index point
             as tensor of shape (Qx,Qy)
         '''
-        if samplershape == '5l':
-            self.top_exclude=0
-            self.bottom_exclude=0
-            self.left_exclude=2
-            self.right_exclude=2
-            self.Rx=self.imgs[0].shape[0]
-            self.Ry=self.imgs[0].shape[1]            
-        elif samplershape == '3d' or '3s':
-            self.top_exclude=1
-            self.bottom_exclude=1
-            self.left_exclude=1
-            self.right_exclude=1
-        self.Rx=self.imgs[0].shape[0]
-        self.Ry=self.imgs[0].shape[1]
-        self.Rx_cut=self.imgs[0].shape[0]-self.top_exclude-self.bottom_exclude
-        self.Ry_cut=self.imgs[0].shape[1]-self.left_exclude-self.right_exclude 
-        
+        samplershape=self.samplershape
 
         maxindex = self.Ry*self.Rx
         
@@ -177,7 +181,7 @@ class DataSet5(torch.utils.data.Dataset):
         Rx_pos=int(index/self.Ry_cut)+self.top_exclude
         Ry_pos=index%self.Ry_cut+self.left_exclude
         print("x and y:", Rx_pos, Ry_pos)
-        coord_list = self.selector(Rx_pos, Ry_pos, samplershape)
+        coord_list = self.selector(Rx_pos, Ry_pos)
         item_output=torch.tensor(self.imgs[0][Rx_pos, Ry_pos],dtype = torch.float16)/300
         item_input=[]
         for coords in coord_list:
