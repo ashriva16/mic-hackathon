@@ -28,4 +28,4 @@ def register_model(name):
 for file in os.listdir(os.path.dirname(__file__)):
     if file.endswith('.py') and file[0].isalpha():
         module = file[:file.find('.py')]
-        importlib.import_module('models.' + module)
+        importlib.import_module(f'{__name__}.{module}')
