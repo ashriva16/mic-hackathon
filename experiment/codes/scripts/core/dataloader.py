@@ -333,7 +333,7 @@ class DataSet4(torch.utils.data.Dataset):
 
         self.samplershape=samplershape
         
-        Rx_pos=int(index/self.Rx_cut)+self.top_exclude
+        Rx_pos=int(index/self.Ry_cut)+self.top_exclude
         Ry_pos=index%self.Ry_cut+self.left_exclude
         print("x and y:", Rx_pos, Ry_pos)
         coord_list = self.selector(Rx_pos, Ry_pos, samplershape)
