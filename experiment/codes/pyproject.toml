@@ -23,12 +23,11 @@ dependencies = [
   "numpy",
   "matplotlib",
   "jupyterlab",
-  "pytest",
-  "pytest-cov",
   "ruamel.yaml",
   "torchvision",
   "torchinfo",
   "tensorboard",
+  "h5py"
 ]
 
 [project.optional-dependencies]
@@ -41,6 +40,9 @@ docs = [
   "sphinx-autodoc-typehints",
 ]
 dev = [
+  "pytest",
+  "pytest-cov",
+
   # --- Linting & Formatting ---
   "black==24.10.0",
   "ruff==0.7.0",
