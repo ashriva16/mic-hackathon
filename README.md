@@ -51,7 +51,7 @@ cd 4Denoising
 
     This creates `.venv/` and installs packages from `requirements.txt` (if present).
 
-- **For refreshing and installing updated dependencies run**
+- **For refreshing and installing updated dependencies, run**
 
     ```bash
     git pull        # get latest code + updated requirements.txt
@@ -61,7 +61,11 @@ cd 4Denoising
 - **Usage**
 
     ```sh
-    .venv/bin/python -m codes.main
+    source .venv/bin/activate
+    python -m scripts.train # to train model from scratch
+    python -m scripts.eval # to evaluate trained model
+    python -m scripts.run_pretrain # to run pretrained UDVD model see reference
+    python -m scripts.finetune # to finetune pretrained trained model
     ```
 
 ---
