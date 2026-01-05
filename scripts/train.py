@@ -35,7 +35,7 @@ def main(cfg, config_path: Path):
     # DATA SETUP ------------------------------------------------------
     filepath = config_path.parent / cfg.dataset.data_dir / cfg.dataset.file
     ds = DataSet(filepath, samplershape=cfg.dataset.samplershape)
-    ds = torch.utils.data.Subset(ds, range(10)) # only fro debugging
+    # ds = torch.utils.data.Subset(ds, range(10)) # only fro debugging
 
     val_size = int(cfg.train.val_split * len(ds))
     train_size = len(ds) - val_size
@@ -58,8 +58,8 @@ def main(cfg, config_path: Path):
 
     # Model Setup ---------------------------------------------
     model, optimizer = load_model(cfg)
-    if device.type == "cuda":
-        model = cast(torch.nn.Module, torch.compile(model, mode="reduce-overhead"))
+    # if device.type == "cuda":
+    #     model = cast(torch.nn.Module, torch.compile(model, mode="reduce-overhead"))
     model.name = cfg.model.name
 
     # Training Setup -----------------------------------------------------------
