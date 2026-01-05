@@ -7,7 +7,7 @@ dataset:
   samplershape: "5l"
 
 train:
-  num_epochs: 1
+  num_epochs: 10_000
   batch_size: 1
   lr: 0.0001
   milestones: [15, 30, 40]

@@ -136,7 +136,7 @@ def main(cfg, config_path: Path):
 if __name__ == "__main__":
     config_path = Path(__file__).with_name("config.yml").resolve()
     config = get_configuration(config_path)
-    print("#"*20, "/n" ,device, "/n", "#"*20)
+    print("#"*20, "/n" ,"using\t", device, "/n", "#"*20)
 
     if device.type == "cuda":
         torch.cuda.manual_seed_all(config.train.seed)
